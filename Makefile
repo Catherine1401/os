@@ -1,7 +1,7 @@
 GPPPARAMS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -ffreestanding
 ASPARAMS = --32
 LDPARAMS = -melf_i386
-objects = loader.o gdt.o kernel.o
+objects = loader.o gdt.o kernel.o port.o
 
 
 %.o: %.cpp
@@ -25,3 +25,11 @@ mykernel.iso: mykernel.bin
 	echo '}' >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=$@ iso
 	rm -r iso
+
+run: mykernel.iso
+	(killall VirtualBox && sleep 1) || true
+	VirtualBox --startvm "HW" &
+
+
+clean:
+	rm $(objects) mykernel.bin mykernel.iso
