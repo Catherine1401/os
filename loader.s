@@ -8,7 +8,7 @@
     .long CHECKSUM
 
 .section .text
-.extern main
+.extern mainn
 .extern call_constructors
 .global loader
 
@@ -17,7 +17,7 @@ loader:
     call call_constructors
     push %eax
     push %ebx
-    call main
+    call mainn
 
 _stop:
     cli

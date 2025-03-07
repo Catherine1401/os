@@ -1,49 +1,98 @@
-#ifndef PORT_H
-#define PORT_H
+#include "port.h"
 
-#include "types.h"
+///////// Port
+Port::Port(uint16_t portNum)
+    : portNumber(portNum)
+{
+}
 
-class Port {
-    protected:
-        uint16_t portNumber;
-    
-    public:
-        Port(uint16_t portNum) : portNumber(portNum) {}
-        virtual ~Port() {}
-    };
-    
-    // Template cho cổng I/O với kích thước bất kỳ
-    template <typename T>
-    class PortT : public Port {
-    public:
-        PortT(uint16_t portNum) : Port(portNum) {}
-        ~PortT() {}
-    
-        void Write(T data) {
-            if constexpr (sizeof(T) == 1)
-                __asm__ volatile("outb %0, %1" : : "a"(data), "Nd"(portNumber));
-            else if constexpr (sizeof(T) == 2)
-                __asm__ volatile("outw %0, %1" : : "a"(data), "Nd"(portNumber));
-            else if constexpr (sizeof(T) == 4)
-                __asm__ volatile("outl %0, %1" : : "a"(data), "Nd"(portNumber));
-        }
-    
-        T Read() {
-            T result;
-            if constexpr (sizeof(T) == 1)
-                __asm__ volatile("inb %1, %0" : "=a"(result) : "Nd"(portNumber));
-            else if constexpr (sizeof(T) == 2)
-                __asm__ volatile("inw %1, %0" : "=a"(result) : "Nd"(portNumber));
-            else if constexpr (sizeof(T) == 4)
-                __asm__ volatile("inl %1, %0" : "=a"(result) : "Nd"(portNumber));
-            return result;
-        }
-    };
-    
-    // Định nghĩa loại cổng cụ thể
-    using Port8Bit = PortT<uint8_t>;
-    using Port16Bit = PortT<uint16_t>;
-    using Port32Bit = PortT<uint32_t>;
-    
+Port::~Port()
+{
+}
 
-#endif
+///////// Port8Bit
+Port8Bit::Port8Bit(uint16_t portNum)
+    : Port(portNum)
+{
+}
+
+Port8Bit::~Port8Bit()
+{
+}
+
+void Port8Bit::Write(uint8_t data)
+{
+    __asm__ volatile("outb %0, %1" : : "a" (data), "Nd" (portNumber));
+}
+
+uint8_t Port8Bit::Read()
+{
+    uint8_t result;
+
+    __asm__ volatile("inb %1, %0" : "=a" (result) : "Nd" (portNumber));
+
+    return result;
+}
+
+///////// Port8BitSlow
+Port8BitSlow::Port8BitSlow(uint16_t portNum)
+    : Port8Bit(portNum)
+{
+}
+
+Port8BitSlow::~Port8BitSlow()
+{
+}
+
+void Port8BitSlow::Write(uint8_t data)
+{
+    __asm__ volatile("outb %0, %1\njmp 1f\n1: jmp 1f\n1:" : : "a" (data), "Nd" (portNumber));
+}
+
+///////// Port16Bit
+Port16Bit::Port16Bit(uint16_t portNum)
+    : Port(portNum)
+{
+}
+
+Port16Bit::~Port16Bit()
+{
+}
+
+void Port16Bit::Write(uint16_t data)
+{
+    __asm__ volatile("outw %0, %1" : : "a" (data), "Nd" (portNumber));
+}
+
+uint16_t Port16Bit::Read()
+{
+    uint16_t result;
+
+    __asm__ volatile("inw %1, %0" : "=a" (result) : "Nd" (portNumber));
+
+    return result;
+}
+
+///////// Port32Bit
+Port32Bit::Port32Bit(uint16_t portNum)
+    : Port(portNum)
+{
+}
+
+Port32Bit::~Port32Bit()
+{
+}
+
+void Port32Bit::Write(uint32_t data)
+{
+    __asm__ volatile("outl %0, %1" : : "a" (data), "Nd" (portNumber));
+}
+
+uint32_t Port32Bit::Read()
+{
+    uint32_t result;
+
+    __asm__ volatile("inl %1, %0" : "=a" (result) : "Nd" (portNumber));
+
+    return result;
+}

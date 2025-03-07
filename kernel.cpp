@@ -1,5 +1,6 @@
 #include "types.h"
 #include "gdt.h"
+#include "interrupts.h"
 
 void printf(const int8_t *str) {
     static uint16_t* videoMemory = (uint16_t*) 0xb8000;
@@ -12,7 +13,6 @@ void printf(const int8_t *str) {
         if (str[i] == '\n') {
             row++;
             column = 0;
-            lastSpace = 0;
             continue;
         }
 
@@ -21,10 +21,10 @@ void printf(const int8_t *str) {
             lastSpaceIndex = i;
         }
 
-        if (column == 80) {  
+        if (column == 80) {
             if (lastSpace > 0) {
                 for (uint16_t j = lastSpace; j < 80; j++) {
-                    videoMemory[80 * row + j] = (videoMemory[80 * row + j] & 0xFF00) | (' ' & 0xFF00);
+                    videoMemory[80 * row + j] = (videoMemory[80 * row + j] & 0xFF00) | ' ';
                 }
                 i = lastSpaceIndex;
                 column = lastSpace;
@@ -62,10 +62,13 @@ extern "C" void call_constructors() {
         (*i)();
 }
 
-extern "C" void main(void *multiboot_structure, uint32_t magicnumber) {
+extern "C" void mainn(void *multiboot_structure, uint32_t magicnumber) {
     printf("hello world!\n hehe\nhealjfewlef\nlihwfhelf");
     printf("hehee");
     printf("On Tuesday, British Prime Minister Keir Starmer pointedly paid tribute in the House of Commons to British soldiers who were killed fighting alongside the United States in Iraq and Afghanistan. This followed a comment by Vance on Fox News that Ukraine needed better security guarantees than undertakings from “some random country that has not fought a war in 30 or 40 years.” The vice president’s remark caused great offensive in Britain. He said on X that claims he’d been talking about Britain and France were “absurdly dishonest,” but those are the only allies who have so far publicly volunteered to take part in a post-peace deal reassurance force in Ukraine.On Tuesday, British Prime Minister Keir Starmer pointedly paid tribute in the House of Commons to British soldiers who were killed fighting alongside the United States in Iraq and Afghanistan. This followed a comment by Vance on Fox News that Ukraine needed better security guarantees than undertakings from “some random country that has not fought a war in 30 or 40 years.” The vice president’s remark caused great offensive in Britain. He said on X that claims he’d been talking about Britain and France were “absurdly dishonest,” but those are the only allies who have so far publicly volunteered to take part in a post-peace deal reassurance force in Ukraine.On Tuesday, British Prime Minister Keir Starmer pointedly paid tribute in the House of Commons to British soldiers who were killed fighting alongside the United States in Iraq and Afghanistan. This followed a comment by Vance on Fox News that Ukraine needed better security guarantees than undertakings from “some random country that has not fought a war in 30 or 40 years.” The vice president’s remark caused great offensive in Britain. He said on X that claims he’d been talking about Britain and France were “absurdly dishonest,” but those are the only allies who have so far publicly volunteered to take part in a post-peace deal reassurance force in Ukraine.On Tuesday, British Prime Minister Keir Starmer pointedly paid tribute in the House of Commons to British soldiers who were killed fighting alongside the United States in Iraq and Afghanistan. This followed a comment by Vance on Fox News that Ukraine needed better security guarantees than undertakings from “some random country that has not fought a war in 30 or 40 years.” The vice president’s remark caused great offensive in Britain. He said on X that claims he’d been talking about Britain and France were “absurdly dishonest,” but those are the only allies who have so far publicly volunteered to take part in a post-peace deal reassurance force in Ukraine.On Tuesday, British Prime Minister Keir Starmer pointedly paid tribute in the House of Commons to British soldiers who were killed fighting alongside the United States in Iraq and Afghanistan. This followed a comment by Vance on Fox News that Ukraine needed better security guarantees than undertakings from “some random country that has not fought a war in 30 or 40 years.” The vice president’s remark caused great offensive in Britain. He said on X that claims he’d been talking about Britain and France were “absurdly dishonest,” but those are the only allies who have so far publicly volunteered to take part in a post-peace deal reassurance force in Ukraine.");
     GlobalDescriptorTable gdt;
+    InterruptManager interrupts(&gdt);
+
+    interrupts.Activate();
     while (true);
 }
